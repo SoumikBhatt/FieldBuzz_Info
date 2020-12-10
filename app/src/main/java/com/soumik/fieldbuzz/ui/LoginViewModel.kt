@@ -8,6 +8,7 @@ import com.soumik.fieldbuzz.data.repositories.AuthenticationRepository
 import com.soumik.fieldbuzz.utils.Resource
 import com.soumik.fieldbuzz.utils.SessionManager
 import com.soumik.fieldbuzz.utils.Status
+import com.soumik.fieldbuzz.utils.hasInternetConnection
 
 class LoginViewModel:ViewModel() {
     companion object {
@@ -22,23 +23,25 @@ class LoginViewModel:ViewModel() {
 
         loginLiveData.postValue(Resource.loading())
 
-        val resource = mRepository.login(username,password)
+        if (hasInternetConnection()) {
+            val resource = mRepository.login(username,password)
+            when(resource.status) {
+                Status.SUCCESS -> {
+                    Log.d(TAG, "login: Logged In Successfully!")
+                    SessionManager.isLoggedIn=true
+                    SessionManager.token = resource.data?.token
 
-        when(resource.status) {
-            Status.SUCCESS -> {
-                Log.d(TAG, "login: Logged In Successfully!")
-                SessionManager.isLoggedIn=true
-                SessionManager.token = resource.data?.token
+                    loginLiveData.postValue(Resource.success(resource.data!!))
+                }
+                Status.LOADING ->{
+                    loginLiveData.postValue(Resource.loading())
+                }
 
-                loginLiveData.postValue(Resource.success(resource.data!!))
+                Status.ERROR -> {
+                    loginLiveData.postValue(Resource.error(resource.error))
+                }
             }
-            Status.LOADING ->{
-                loginLiveData.postValue(Resource.loading())
-            }
+        } else loginLiveData.postValue(Resource.error("There is no Internet connection"))
 
-            Status.ERROR -> {
-                loginLiveData.postValue(Resource.error(resource.error))
-            }
-        }
     }
 }

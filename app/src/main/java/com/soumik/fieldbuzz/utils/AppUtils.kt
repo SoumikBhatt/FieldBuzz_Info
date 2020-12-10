@@ -7,12 +7,21 @@ import android.net.NetworkCapabilities
 import android.os.Build
 import android.view.View
 import android.widget.Toast
+import com.google.android.material.snackbar.Snackbar
 import com.soumik.fieldbuzz.FieldBuzz
 
 const val BASE_URL = "https://recruitment.fisdev.com/api/"
 const val FAILURE_MESSAGE = "Something went wrong! Please try again later.."
 
 fun showToast(context: Context,message:String,length:Int) = Toast.makeText(context,message,length).show()
+
+fun showSnackBar(parent:View,message: String,action:String,length: Int) {
+    Snackbar.make(parent,message,length).apply {
+        setAction(action) {
+            this.dismiss()
+        }.show()
+    }
+}
 
 fun lightStatusBar(activity: Activity, value:Boolean){
     if (value){
