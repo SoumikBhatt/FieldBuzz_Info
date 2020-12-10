@@ -8,9 +8,12 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.Toast
+import androidx.core.widget.doOnTextChanged
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import com.soumik.fieldbuzz.R
 import com.soumik.fieldbuzz.utils.Status
 import com.soumik.fieldbuzz.utils.lightStatusBar
@@ -26,8 +29,10 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var mViewModel: LoginViewModel
 
     private lateinit var loginBtn:Button
-    private lateinit var userNameET:EditText
-    private lateinit var passwordET:EditText
+    private lateinit var userNameET:TextInputEditText
+    private lateinit var userNameCon: TextInputLayout
+    private lateinit var passwordCon: TextInputLayout
+    private lateinit var passwordET:TextInputEditText
     private lateinit var progressBar: ProgressBar
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,16 +42,21 @@ class LoginActivity : AppCompatActivity() {
 
         init()
 
+        userNameCon.editText?.doOnTextChanged { text, start, before, count -> userNameCon.error=null }
+        passwordCon.editText?.doOnTextChanged { text, start, before, count -> passwordCon.error=null}
+
         loginBtn.setOnClickListener { validateInputFields() }
 
         setUpObservers()
+
+
 
     }
 
     private fun validateInputFields() {
         when {
-            TextUtils.isEmpty(userNameET.text) -> userNameET.error = "Please provide your username"
-            TextUtils.isEmpty(passwordET.text) -> passwordET.error = "Please provide your password"
+            TextUtils.isEmpty(userNameET.text) -> userNameCon.error = "Please provide your username"
+            TextUtils.isEmpty(passwordET.text) -> passwordCon.error = "Please provide your password"
             else -> lifecycleScope.launch { login(userNameET.text.toString(),passwordET.text.toString()) }
         }
     }
@@ -90,6 +100,8 @@ class LoginActivity : AppCompatActivity() {
         loginBtn = findViewById(R.id.btn_login)
         userNameET = findViewById(R.id.et_username)
         passwordET = findViewById(R.id.et_password)
+        userNameCon = findViewById(R.id.con_username)
+        passwordCon = findViewById(R.id.con_password)
         progressBar = findViewById(R.id.pb_login)
     }
 }
