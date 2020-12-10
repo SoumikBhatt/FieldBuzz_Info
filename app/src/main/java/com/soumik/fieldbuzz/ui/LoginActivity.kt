@@ -78,6 +78,11 @@ class LoginActivity : AppCompatActivity() {
                     progressBar.visibility=View.GONE
                     loginBtn.visibility=View.VISIBLE
 
+                    when(it.error) {
+                        "Password is incorrect for provided username." -> passwordCon.error=it.error
+                        "Username does not exist in the system." -> userNameCon.error = it.error
+                    }
+
                     showSnackBar(rootView,it.error!!,"Ok",Snackbar.LENGTH_INDEFINITE)
                 }
                 Status.LOADING -> {
