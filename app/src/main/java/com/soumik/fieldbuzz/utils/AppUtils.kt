@@ -7,11 +7,24 @@ import android.net.NetworkCapabilities
 import android.os.Build
 import android.view.View
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import com.google.android.material.snackbar.Snackbar
 import com.soumik.fieldbuzz.FieldBuzz
 
 const val BASE_URL = "https://recruitment.fisdev.com/api/"
 const val FAILURE_MESSAGE = "Something went wrong! Please try again later.."
+
+
+fun toolbarStyle(context: AppCompatActivity, toolbar: Toolbar, title: String) {
+
+    (context).setSupportActionBar(toolbar)
+    context.supportActionBar!!.setDisplayHomeAsUpEnabled(true)
+    context.supportActionBar!!.setDisplayShowHomeEnabled(true)
+    context.supportActionBar!!.setDisplayShowTitleEnabled(true)
+
+    context.supportActionBar!!.title = title
+}
 
 fun showToast(context: Context,message:String,length:Int) = Toast.makeText(context,message,length).show()
 

@@ -1,5 +1,6 @@
 package com.soumik.fieldbuzz.ui
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.TextUtils
@@ -13,10 +14,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.soumik.fieldbuzz.R
-import com.soumik.fieldbuzz.utils.Status
-import com.soumik.fieldbuzz.utils.lightStatusBar
-import com.soumik.fieldbuzz.utils.showSnackBar
-import com.soumik.fieldbuzz.utils.showToast
+import com.soumik.fieldbuzz.utils.*
 import kotlinx.coroutines.launch
 
 class LoginActivity : AppCompatActivity() {
@@ -39,6 +37,11 @@ class LoginActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         lightStatusBar(this,true)
         setContentView(R.layout.activity_login)
+
+        if (SessionManager.isLoggedIn) {
+            startActivity(Intent(this,HomeActivity::class.java))
+            finish()
+        }
 
         init()
 
@@ -67,12 +70,14 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun setUpObservers() {
-        mViewModel.loginLiveData.observe(this, {
+        mViewModel.loginLiveData.observe(this, Observer{
             when (it.status) {
                 Status.SUCCESS -> {
                     progressBar.visibility=View.GONE
                     loginBtn.visibility=View.VISIBLE
-                    showSnackBar(rootView,"Logged in successfully!!","Ok",Snackbar.LENGTH_INDEFINITE)
+                    startActivity(Intent(this,HomeActivity::class.java))
+                    finish()
+//                    showSnackBar(rootView,"Logged in successfully!!","Ok",Snackbar.LENGTH_INDEFINITE)
                 }
                 Status.ERROR -> {
                     progressBar.visibility=View.GONE

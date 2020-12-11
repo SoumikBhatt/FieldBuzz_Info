@@ -3,4 +3,21 @@
     <string name="hint_username">Username</string>
     <string name="hint_password">Password</string>
     <string name="text_login">Login</string>
+    <string name="hint_name">Name</string>
+    <string name="hint_phone">Phone</string>
+    <string name="hint_email">Email</string>
+    <string name="hint_full_address">Full Address</string>
+    <string name="hint_name_of_university">Name of University</string>
+    <string name="hint_experience_in_months">Experience in months</string>
+    <string name="hint_cgpa">cgpa</string>
+    <string name="hint_graduation_year">Graduation Year</string>
+    <string name="hint_applying_in">Applying in:</string>
+    <string name="text_mobile">Mobile</string>
+    <string name="text_backend">Backend</string>
+    <string name="hint_current_workplace_name">Current workplace name</string>
+    <string name="hint_expected_salary">Expected salary</string>
+    <string name="hint_reference_if_any">Reference (If any)</string>
+    <string name="hint_project_url">Project Url</string>
+    <string name="text_attach_your_cv_pdf_only">Attach your cv (pdf only)</string>
+    <string name="text_submit">Submit</string>
 </resources>
