@@ -1,16 +1,26 @@
 package com.soumik.fieldbuzz.utils
 
 import android.app.Activity
+import android.app.Dialog
 import android.content.Context
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
+import android.util.Patterns
+import android.view.LayoutInflater
 import android.view.View
+import android.widget.ScrollView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import com.google.android.material.snackbar.Snackbar
 import com.soumik.fieldbuzz.FieldBuzz
+import com.soumik.fieldbuzz.R
 
 const val BASE_URL = "https://recruitment.fisdev.com/api/"
 const val FAILURE_MESSAGE = "Something went wrong! Please try again later.."
@@ -70,3 +80,42 @@ fun hasInternetConnection(): Boolean {
     }
     return false
 }
+
+
+fun getRandomString() : String {
+    val allowedChars = ('A'..'Z') + ('a'..'z') + ('0'..'9')
+    return (1..55)
+        .map { allowedChars.random() }
+        .joinToString("")
+}
+
+val unixTimestamp =  System.currentTimeMillis() /1000
+
+fun String.isValidEmail():Boolean = Patterns.EMAIL_ADDRESS.matcher(this).matches()
+
+fun String.isValidUrl(): Boolean = Patterns.WEB_URL.matcher(this).matches()
+
+fun progressDialog(context: Context,message: String): Dialog {
+    val dialog = Dialog(context)
+    val view = LayoutInflater.from(context).inflate(R.layout.dialog_progress, null)
+
+    val messageTV = view.findViewById<TextView>(R.id.tv_loading_text)
+
+    messageTV.text = message
+
+    dialog.setContentView(view)
+    dialog.setCancelable(false)
+    dialog.window!!.setBackgroundDrawable(
+        ColorDrawable(Color.TRANSPARENT)
+    )
+    return dialog
+}
+
+fun ScrollView.focusOnView(toView: View){
+
+    Handler(Looper.myLooper()!!).post {
+        this.smoothScrollTo(0, toView.top)
+    }
+
+}
+

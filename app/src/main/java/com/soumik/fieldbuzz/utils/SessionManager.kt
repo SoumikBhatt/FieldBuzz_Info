@@ -9,6 +9,8 @@ object SessionManager {
 
     private const val IS_LOGGED_IN = "loggedIn"
     private const val TOKEN = "token"
+    private const val LOGIN_TOKEN = "login_token"
+    private const val FILE_TOKEN = "file_token"
 
     private val mContext = FieldBuzz.mContext
 
@@ -22,4 +24,14 @@ object SessionManager {
     var token:String?
     get() = preference.getString(TOKEN,null)
     set(value) { editor.putString(TOKEN,value).commit()}
+
+    var lastInputToken:String?
+    get() = preference.getString(LOGIN_TOKEN,null)
+    set(value) {
+        editor.putString(LOGIN_TOKEN,value).commit()}
+
+    var lastFileToken:String?
+        get() = preference.getString(FILE_TOKEN,null)
+        set(value) {
+            editor.putString(FILE_TOKEN,value).commit()}
 }
