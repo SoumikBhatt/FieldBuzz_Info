@@ -2,6 +2,7 @@ package com.soumik.fieldbuzz.utils
 
 import android.app.Activity
 import android.app.Dialog
+import android.app.ProgressDialog
 import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
@@ -13,6 +14,8 @@ import android.os.Looper
 import android.util.Patterns
 import android.view.LayoutInflater
 import android.view.View
+import android.view.Window
+import android.widget.ProgressBar
 import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
@@ -82,26 +85,39 @@ fun hasInternetConnection(): Boolean {
 }
 
 
-fun getRandomString() : String {
+fun getRandomInputToken() : String {
     val allowedChars = ('A'..'Z') + ('a'..'z') + ('0'..'9')
-    return (1..55)
-        .map { allowedChars.random() }
-        .joinToString("")
+    val token =  (1..55).map { allowedChars.random() }.joinToString("")
+
+    return  if (token!=SessionManager.lastInputToken) {
+        SessionManager.lastInputToken=token
+        token
+    } else getRandomInputToken()
 }
 
-val unixTimestamp =  System.currentTimeMillis() /1000
+fun getRandomFileToken() : String {
+    val allowedChars = ('A'..'Z') + ('a'..'z') + ('0'..'9')
+    val token =  (1..55).map { allowedChars.random() }.joinToString("")
+
+    return  if (token!=SessionManager.lastFileToken) {
+        SessionManager.lastFileToken=token
+        token
+    } else getRandomFileToken()
+}
+
+val unixTimestamp =  System.currentTimeMillis()
 
 fun String.isValidEmail():Boolean = Patterns.EMAIL_ADDRESS.matcher(this).matches()
 
 fun String.isValidUrl(): Boolean = Patterns.WEB_URL.matcher(this).matches()
 
-fun progressDialog(context: Context,message: String): Dialog {
+fun progressDialog(context: Context,message: String?): Dialog {
     val dialog = Dialog(context)
     val view = LayoutInflater.from(context).inflate(R.layout.dialog_progress, null)
 
     val messageTV = view.findViewById<TextView>(R.id.tv_loading_text)
 
-    messageTV.text = message
+    if (message!=null) messageTV.text = message
 
     dialog.setContentView(view)
     dialog.setCancelable(false)
@@ -111,11 +127,29 @@ fun progressDialog(context: Context,message: String): Dialog {
     return dialog
 }
 
+//private val changeText = Runnable { m_ProgressDialog.setMessage(myText) }
+
 fun ScrollView.focusOnView(toView: View){
 
     Handler(Looper.myLooper()!!).post {
         this.smoothScrollTo(0, toView.top)
     }
+}
 
+
+fun ProgressDialog.showProgress(activity: Activity,message: String?) {
+    val progressDialog = this
+    progressDialog.isIndeterminate = true
+    progressDialog.setMessage(message)
+    progressDialog.setCancelable(true)
+    progressDialog.show()
+}
+
+fun ProgressDialog.hideProgressBar() {
+    this.dismiss()
+}
+
+fun ProgressDialog.message(message: String?) {
+    this.setMessage(message)
 }
 

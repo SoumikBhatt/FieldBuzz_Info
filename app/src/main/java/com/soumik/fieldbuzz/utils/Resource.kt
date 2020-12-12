@@ -12,6 +12,6 @@ data class Resource<T> (val status: Status,val data:T?,val error:String?){
             return Resource(Status.ERROR,null,message)
         }
 
-        fun <T> loading():Resource<T> = Resource(Status.LOADING,null,null)
+        fun <T> loading(message: String?):Resource<T> = Resource(Status.LOADING,null,message)
     }
 }

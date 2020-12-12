@@ -1,6 +1,7 @@
 package com.soumik.fieldbuzz.ui
 
 import android.app.Activity
+import android.app.ProgressDialog
 import android.content.Intent
 import android.database.Cursor
 import android.net.Uri
@@ -9,22 +10,26 @@ import android.provider.OpenableColumns
 import android.text.TextUtils
 import android.util.Log
 import android.view.MenuItem
-import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.widget.doOnTextChanged
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputLayout
 import com.soumik.fieldbuzz.R
 import com.soumik.fieldbuzz.utils.*
-import kotlinx.coroutines.*
+import kotlinx.coroutines.launch
 import java.io.File
 
 
 class HomeActivity : AppCompatActivity() {
+
+    private lateinit var mViewModel: HomeViewModel
 
     private lateinit var toolbar: Toolbar
     private lateinit var nameInput:TextInputLayout
@@ -46,6 +51,8 @@ class HomeActivity : AppCompatActivity() {
     private lateinit var scrollView:ScrollView
     private lateinit var attachIV:ImageView
     private lateinit var pdfTV:TextView
+
+    private lateinit var progressDialog:ProgressDialog
 
     private var applyingOn = "Mobile"
     private var selectedPDF:Uri?=null
@@ -98,6 +105,26 @@ class HomeActivity : AppCompatActivity() {
         pdfInput.setOnClickListener { selectPdfFromStorage() }
 
         Log.d(TAG, "onStart: Selected: $applyingOn")
+
+        setUpObserver()
+    }
+
+    private fun setUpObserver() {
+        mViewModel.liveData.observe(this, Observer {
+            when(it.status) {
+                Status.SUCCESS -> {
+                    progressDialog.hideProgressBar()
+                    showSnackBar(parentView,"Information Submitted Successfully","Ok",Snackbar.LENGTH_INDEFINITE)
+                }
+                Status.ERROR-> {
+                    progressDialog.hideProgressBar()
+                    showSnackBar(parentView,it.error!!,"Ok",Snackbar.LENGTH_INDEFINITE)
+                }
+                Status.LOADING->{
+                    progressDialog.message(it.error)
+                }
+            }
+        })
     }
 
     private fun validateInputFields() {
@@ -161,12 +188,60 @@ class HomeActivity : AppCompatActivity() {
             }
             selectedPDF==null -> showSnackBar(parentView,"Please choose your cv","Ok",Snackbar.LENGTH_INDEFINITE)
             else -> {
-                showSnackBar(parentView,"We are ready to go!!","Ok",Snackbar.LENGTH_INDEFINITE)
+                val inputToken = getRandomInputToken()
+                val fileToken = getRandomFileToken()
+
+                Log.d(TAG, "validateInputFields: IT: $inputToken :: FT: $fileToken")
+
+                submitInformation(nameInput.editText?.text.toString(),emailInput.editText?.text.toString(),phoneInput.editText?.text.toString(),addressInput.editText?.text.toString(),
+                universityInput.editText?.text.toString(),gradYearInput.editText?.text.toString().toInt(),cGPAInput.editText?.text.toString().toDouble(),experienceInput.editText?.text.toString().toInt(),
+                workplaceInput.editText?.text.toString(),applyingOn,salaryInput.editText?.text.toString().toInt(),referenceInput.editText?.text.toString(),urlInput.editText?.text.toString(),
+                selectedPDF,inputToken,fileToken, unixTimestamp, unixTimestamp)
             }
         }
     }
 
+    private fun submitInformation(
+        name: String,
+        email: String,
+        phone: String,
+        address: String?,
+        university: String,
+        gradYear: Int,
+        cgpa: Double?,
+        experience: Int?,
+        workPlace: String?,
+        applyingOn: String,
+        salary: Int,
+        reference: String?,
+        projectUrl: String,
+        selectedPDF: Uri?,
+        inputToken: String,
+        fileToken: String,
+        updateTime: Long?,
+        createTime: Long
+    ) {
+
+        Log.d(TAG, "submitInformation: N: $name :: E: $email :: P: $phone :: A: $address :: U: $university :: " +
+                "GY: $gradYear :: C: $cgpa :: E: $experience :: W: $workPlace :: APP: $applyingOn :: S: $salary :: REF: $reference ::" +
+                " PU: $projectUrl :: IT: $inputToken :: FT: $fileToken :: UT: $updateTime :: CT: $createTime")
+//        progressDialog(this,"Submitting Information...").show()
+
+
+        progressDialog.showProgress(this,null)
+
+        lifecycleScope.launch {
+            mViewModel.submitInformation(name, email, phone, address, university, gradYear, cgpa,
+                experience, workPlace, applyingOn, salary, reference, projectUrl, selectedPDF, inputToken, fileToken, updateTime, createTime)
+        }
+
+    }
+
     private fun init() {
+
+        mViewModel = ViewModelProvider(this).get(HomeViewModel::class.java)
+        progressDialog = ProgressDialog(this)
+
         toolbar = findViewById(R.id.tb_home)
         nameInput = findViewById(R.id.con_name)
         emailInput = findViewById(R.id.con_email)

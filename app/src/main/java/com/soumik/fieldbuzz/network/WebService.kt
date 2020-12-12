@@ -15,7 +15,7 @@ interface WebService {
     ):Response<LoginResponse>
 
     @FormUrlEncoded
-    @POST("v0/recruiting-entities")
+    @POST("v0/recruiting-entities/")
     suspend fun recruitmentInformations(
             @Header("Authorization") token:String,
             @Field("tsync_id") tSyncID:String,
@@ -26,14 +26,14 @@ interface WebService {
             @Field("name_of_university") name_of_university:String,
             @Field("graduation_year") graduation_year:Int,
             @Field("cgpa") cgpa:Double?,
-            @Field("experience_in_months") experience_in_months:Double?,
+            @Field("experience_in_months") experience_in_months:Int?,
             @Field("current_work_place_name") current_work_place_name:String?,
             @Field("applying_in") applying_in:String,
             @Field("expected_salary") expected_salary:Int,
             @Field("field_buzz_reference") field_buzz_reference:String?,
             @Field("github_project_url") github_project_url:String,
             @Field("cv_file.tsync_id") cv_file:String,
-            @Field("on_spot_update_time") on_spot_update_time:String?,
-            @Field("on_spot_creation_time") on_spot_creation_time:String?,
+            @Field("on_spot_update_time") on_spot_update_time:Int?,
+            @Field("on_spot_creation_time") on_spot_creation_time:Int?,
     ):Response<DetailsResponse>
 }

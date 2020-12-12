@@ -21,7 +21,7 @@ class LoginViewModel:ViewModel() {
 
     suspend fun login(username:String,password:String) {
 
-        loginLiveData.postValue(Resource.loading())
+        loginLiveData.postValue(Resource.loading(null))
 
         if (hasInternetConnection()) {
             val resource = mRepository.login(username,password)
@@ -34,7 +34,7 @@ class LoginViewModel:ViewModel() {
                     loginLiveData.postValue(Resource.success(resource.data!!))
                 }
                 Status.LOADING ->{
-                    loginLiveData.postValue(Resource.loading())
+                    loginLiveData.postValue(Resource.loading(null))
                 }
 
                 Status.ERROR -> {
