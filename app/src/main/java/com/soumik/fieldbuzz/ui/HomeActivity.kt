@@ -1,27 +1,34 @@
 package com.soumik.fieldbuzz.ui
 
+import android.Manifest
 import android.app.Activity
 import android.app.ProgressDialog
+import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.database.Cursor
 import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
 import android.provider.OpenableColumns
 import android.text.TextUtils
 import android.util.Log
 import android.view.MenuItem
+import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.app.ActivityCompat
 import androidx.core.widget.doOnTextChanged
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputLayout
+import com.soumik.fieldbuzz.FieldBuzz
 import com.soumik.fieldbuzz.R
+import com.soumik.fieldbuzz.data.repositories.HomeRepository
 import com.soumik.fieldbuzz.utils.*
 import kotlinx.coroutines.launch
 import java.io.File
@@ -56,6 +63,7 @@ class HomeActivity : AppCompatActivity() {
 
     private var applyingOn = "Mobile"
     private var selectedPDF:Uri?=null
+    private var pdfSize:Double?=null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -102,15 +110,20 @@ class HomeActivity : AppCompatActivity() {
             applyingOn = findViewById<RadioButton>(checkedId).text.toString()
         }
 
-        pdfInput.setOnClickListener { selectPdfFromStorage() }
+        pdfInput.setOnClickListener {
+            when {
+                isPermissionsGranted() -> selectPdfFromStorage()
+                shouldShowRequestPermissionRationale() -> requestStoragePermission()
+                else -> requestStoragePermission()
+            }
+
+        }
 
         Log.d(TAG, "onStart: Selected: $applyingOn")
-
-        setUpObserver()
     }
 
     private fun setUpObserver() {
-        mViewModel.liveData.observe(this, Observer {
+        mViewModel.infoLiveData.observe(this, Observer {
             when(it.status) {
                 Status.SUCCESS -> {
                     progressDialog.hideProgressBar()
@@ -187,6 +200,7 @@ class HomeActivity : AppCompatActivity() {
                     scrollView.focusOnView(experienceInput)
             }
             selectedPDF==null -> showSnackBar(parentView,"Please choose your cv","Ok",Snackbar.LENGTH_INDEFINITE)
+            pdfSize!=null && pdfSize!!>4.0 -> showSnackBar(parentView,"PDF size can't be more than 4MB","Ok",Snackbar.LENGTH_INDEFINITE)
             else -> {
                 val inputToken = getRandomInputToken()
                 val fileToken = getRandomFileToken()
@@ -231,9 +245,11 @@ class HomeActivity : AppCompatActivity() {
         progressDialog.showProgress(this,null)
 
         lifecycleScope.launch {
-            mViewModel.submitInformation(name, email, phone, address, university, gradYear, cgpa,
-                experience, workPlace, applyingOn, salary, reference, projectUrl, selectedPDF, inputToken, fileToken, updateTime, createTime)
+            mViewModel.submitInformation(name, email, "+88$phone", address, university, gradYear, cgpa,
+                experience, workPlace, applyingOn, salary, reference, projectUrl, selectedPDF, inputToken, fileToken, updateTime, createTime,selectedPDF)
         }
+
+        setUpObserver()
 
     }
 
@@ -264,44 +280,44 @@ class HomeActivity : AppCompatActivity() {
         pdfTV= findViewById(R.id.tv_attach_pic)
     }
 
+    private fun requestStoragePermission() {
+        ActivityCompat.requestPermissions(
+            this,
+            arrayOf(
+                Manifest.permission.READ_EXTERNAL_STORAGE
+            ),
+            STORAGE_REQUEST
+        )
+    }
+
+    private fun isPermissionsGranted() =
+        ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+
+    private fun shouldShowRequestPermissionRationale() =
+        ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        when(requestCode) {
+            STORAGE_REQUEST-> {
+                selectPdfFromStorage()
+            }
+        }
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == PDF_SELECTION_CODE && resultCode == Activity.RESULT_OK && data != null) {
             selectedPDF = data.data
 
             attachIV.setImageResource(R.drawable.ic_pdf)
-            pdfTV.text = getPdfFileName(selectedPDF)
+            pdfTV.text = FileUtils.getNameFromContentUri(this,selectedPDF,parentView)
+            pdfSize = FileUtils.getPdfFileSize(this,selectedPDF,parentView)
         }
-    }
-
-    private fun getPdfFileName(selectedPDF: Uri?):String {
-        var displayName: String? = null
-
-        if (selectedPDF != null) {
-            val uri = selectedPDF.toString()
-            val file = File(uri)
-            val path = file.absolutePath
-
-            if (uri.startsWith("content://")) {
-                var cursor: Cursor? = null
-                try {
-                    cursor = contentResolver.query(selectedPDF, null, null, null, null)
-                    if (cursor != null && cursor.moveToFirst()) {
-                        displayName =
-                            cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME))
-                    }
-                } finally {
-                    cursor?.close()
-                }
-            } else if (uri.startsWith("file://")) {
-                displayName = file.name
-            }
-        } else {
-            showSnackBar(parentView, "No pdf selected", "Ok", Snackbar.LENGTH_INDEFINITE)
-            displayName = "No PDF selected"
-        }
-
-        return displayName!!
     }
 
     private fun selectPdfFromStorage() {
@@ -320,5 +336,6 @@ class HomeActivity : AppCompatActivity() {
     companion object{
         private const val TAG = "HOME"
         private const val PDF_SELECTION_CODE = 1234
+        private const val STORAGE_REQUEST = 999
     }
 }

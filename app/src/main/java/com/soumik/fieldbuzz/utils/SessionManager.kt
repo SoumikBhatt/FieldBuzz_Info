@@ -10,7 +10,9 @@ object SessionManager {
     private const val IS_LOGGED_IN = "loggedIn"
     private const val TOKEN = "token"
     private const val LOGIN_TOKEN = "login_token"
+    private const val LAST_INPUT_TOKEN = "last_input_token"
     private const val FILE_TOKEN = "file_token"
+    private const val LAST_FILE_TOKEN = "last_file_token"
 
     private val mContext = FieldBuzz.mContext
 
@@ -34,4 +36,14 @@ object SessionManager {
         get() = preference.getString(FILE_TOKEN,null)
         set(value) {
             editor.putString(FILE_TOKEN,value).commit()}
+
+    var lastSavedInputToken:String?
+    get() = preference.getString(LAST_INPUT_TOKEN,null)
+    set(value) {
+        editor.putString(LAST_INPUT_TOKEN,value).commit()}
+
+    var lastSavedFileToken:String?
+        get() = preference.getString(LAST_FILE_TOKEN,null)
+        set(value) {
+            editor.putString(LAST_FILE_TOKEN,value).commit()}
 }

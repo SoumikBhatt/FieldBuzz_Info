@@ -1,7 +1,10 @@
 package com.soumik.fieldbuzz.network
 
 import com.soumik.fieldbuzz.data.models.DetailsResponse
+import com.soumik.fieldbuzz.data.models.FileUploadResponse
 import com.soumik.fieldbuzz.data.models.LoginResponse
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.Response
 import retrofit2.http.*
 
@@ -16,7 +19,7 @@ interface WebService {
 
     @FormUrlEncoded
     @POST("v0/recruiting-entities/")
-    suspend fun recruitmentInformations(
+    suspend fun recruitmentInformation(
             @Header("Authorization") token:String,
             @Field("tsync_id") tSyncID:String,
             @Field("name") name:String,
@@ -34,6 +37,16 @@ interface WebService {
             @Field("github_project_url") github_project_url:String,
             @Field("cv_file.tsync_id") cv_file:String,
             @Field("on_spot_update_time") on_spot_update_time:Int?,
-            @Field("on_spot_creation_time") on_spot_creation_time:Int?,
+            @Field("on_spot_creation_time") on_spot_creation_time:Int?
     ):Response<DetailsResponse>
+
+    @Multipart
+    @PUT
+    suspend fun fileUpload(
+        @Url url:String,
+        @Header("Authorization") token:String,
+//        @Part("file") file:RequestBody
+        @Part file:MultipartBody.Part
+    ):Response<FileUploadResponse>
+
 }

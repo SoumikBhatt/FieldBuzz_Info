@@ -78,7 +78,7 @@
                 android:hint="@string/hint_phone"
                 android:minHeight="56dp"
                 app:prefixText="+88"
-                app:counterMaxLength="14"
+                app:counterMaxLength="11"
                 app:counterEnabled="true"
                 app:boxStrokeColor="@color/purple_500"
                 app:errorEnabled="true">
@@ -87,7 +87,7 @@
                     android:id="@+id/et_phone"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:maxLength="14"
+                    android:maxLength="11"
                     android:inputType="phone"
                     android:minHeight="56dp" />
 

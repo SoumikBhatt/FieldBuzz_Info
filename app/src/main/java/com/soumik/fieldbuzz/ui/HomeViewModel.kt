@@ -5,10 +5,9 @@ import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.soumik.fieldbuzz.data.models.DetailsResponse
+import com.soumik.fieldbuzz.data.models.FileUploadResponse
 import com.soumik.fieldbuzz.data.repositories.HomeRepository
-import com.soumik.fieldbuzz.utils.Resource
-import com.soumik.fieldbuzz.utils.Status
-import com.soumik.fieldbuzz.utils.hasInternetConnection
+import com.soumik.fieldbuzz.utils.*
 
 class HomeViewModel:ViewModel() {
 
@@ -18,12 +17,13 @@ class HomeViewModel:ViewModel() {
 
     private val mHomeRepository = HomeRepository()
 
-    val liveData = MutableLiveData<Resource<DetailsResponse>> ()
+    val infoLiveData = MutableLiveData<Resource<DetailsResponse>> ()
+
 
     suspend fun submitInformation(name: String, email: String, phone: String, address: String?, university: String, gradYear: Int, cgpa: Double?, experience: Int?, workPlace: String?,
-        applyingOn: String, salary: Int, reference: String?, projectUrl: String, selectedPDF: Uri?, inputToken: String, fileToken: String, updateTime: Long?, createTime: Long) {
+        applyingOn: String, salary: Int, reference: String?, projectUrl: String, selectedPDF: Uri?, inputToken: String, fileToken: String, updateTime: Long?, createTime: Long,pdfUri:Uri?) {
 
-        liveData.postValue(Resource.loading("Validating..."))
+        infoLiveData.postValue(Resource.loading("Validating..."))
 
         if (hasInternetConnection()) {
             val resource = mHomeRepository.submitInformation(name, email, phone, address, university, gradYear, cgpa, experience,
@@ -32,18 +32,51 @@ class HomeViewModel:ViewModel() {
             when(resource.status) {
                 Status.SUCCESS ->{
                     Log.d(TAG, "submitInformation: Info submitted")
-//                    liveData.postValue(Resource.success(resource.data!!))
-                    liveData.postValue(Resource.loading("Uploading cv..."))
+                    SessionManager.lastInputToken = resource.data?.tsyncId
+
+                    infoLiveData.postValue(fileUpload(pdfUri,resource.data?.cvFile?.id,resource))
+
+//                    infoLiveData.postValue(Resource.loading("Uploading cv..."))
                 }
                 Status.ERROR ->{
-                    liveData.postValue(Resource.error(resource.error))
+                    infoLiveData.postValue(Resource.error(resource.error))
                 }
                 Status.LOADING->{
-                    liveData.postValue(Resource.loading("Submitting Information..."))
+                    infoLiveData.postValue(Resource.loading("Submitting Information..."))
                 }
             }
 
-        } else liveData.postValue(Resource.error("There is no Internet connection"))
+        } else infoLiveData.postValue(Resource.error("There is no Internet connection"))
+    }
+
+    private suspend fun fileUpload(pdfUri: Uri?, fileToken: Int?,data:Resource<DetailsResponse>): Resource<DetailsResponse>? {
+        if (hasInternetConnection()) {
+            return try {
+
+                Resource.loading<DetailsResponse>("Uploading CV...")
+
+                val resource = mHomeRepository.fileUpload(fileToken,pdfUri)
+
+                when(resource.status) {
+                    Status.SUCCESS ->{
+                        Log.d(TAG, "fileUpload: CV Upload Success!!")
+                        SessionManager.lastFileToken = resource.data?.tsyncId
+                        return Resource.success(data.data!!)
+                    }
+                    Status.ERROR ->{
+                        Resource.error(resource.error)
+                    }
+                    Status.LOADING->{
+                        Resource.loading("Uploading CV...")
+                    }
+                }
+
+            } catch (e:Exception) {
+                Log.e(TAG, "fileUpload: Exception: ${e.printStackTrace()}")
+                Resource.error(FAILURE_MESSAGE)
+            }
+
+        } else return Resource.error("There is no Internet connection")
     }
 
 }
