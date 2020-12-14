@@ -7,18 +7,18 @@ import android.database.Cursor
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
+import android.os.Handler
+import android.os.Looper
 import android.provider.DocumentsContract
 import android.provider.MediaStore
 import android.provider.OpenableColumns
 import android.text.TextUtils
 import android.util.Log
 import android.view.View
+import androidx.core.os.postDelayed
 import com.google.android.material.snackbar.Snackbar
 import com.soumik.fieldbuzz.FieldBuzz
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
@@ -247,10 +247,12 @@ object FileUtils {
                     var path:String?=null
 
                     GlobalScope.launch(Dispatchers.IO) {
-                       path = copyFileToInternalStorage(uri, "userfiles")
+                        path = copyFileToInternalStorage(uri, "userfiles")
                     }
 
+                    Thread.sleep(1000)
                     path
+
                     // return getRealPathFromURI(context,uri);
                 } else {
                     getDataColumn(context, uri, null, null)
@@ -377,6 +379,8 @@ object FileUtils {
         var returnCursor:Cursor?=null
         var path:String?=null
 
+        Log.d(TAG, "copyFileToInternalStorage: Triggered")
+
         try {
 
             withContext(Dispatchers.IO) {
@@ -393,14 +397,15 @@ object FileUtils {
                 val size = returnCursor?.getLong(sizeIndex!!).toString()
                 val output: File
                 if (newDirName != "") {
-                    val dir =
-                        File(context.filesDir.toString() + "/" + newDirName)
+                    val dir = File(context.filesDir.toString() + "/" + newDirName)
                     if (!dir.exists()) {
                         dir.mkdir()
                     }
                     output = File(context.filesDir.toString() + "/" + newDirName + "/" + name)
+                    Log.d(TAG, "copyFileToInternalStorage: ${output.absolutePath}")
                 } else {
                     output = File(context.filesDir.toString() + "/" + name)
+                    Log.d(TAG, "copyFileToInternalStorage: Else: ${output.absolutePath}")
                 }
                 try {
                     val inputStream: InputStream? = context.contentResolver.openInputStream(uri)
@@ -419,6 +424,7 @@ object FileUtils {
                 path = output.path
             }
 
+            Log.d(TAG, "copyFileToInternalStorage: Path: $path")
             return path
         } finally {
             returnCursor?.close()
