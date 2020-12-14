@@ -207,9 +207,9 @@ class HomeActivity : AppCompatActivity() {
 
                 Log.d(TAG, "validateInputFields: IT: $inputToken :: FT: $fileToken")
 
-                submitInformation(nameInput.editText?.text.toString(),emailInput.editText?.text.toString(),phoneInput.editText?.text.toString(),addressInput.editText?.text.toString(),
-                universityInput.editText?.text.toString(),gradYearInput.editText?.text.toString().toInt(),cGPAInput.editText?.text.toString().toDouble(),experienceInput.editText?.text.toString().toInt(),
-                workplaceInput.editText?.text.toString(),applyingOn,salaryInput.editText?.text.toString().toInt(),referenceInput.editText?.text.toString(),urlInput.editText?.text.toString(),
+                submitInformation(nameInput.editText?.text.toString().trim(),emailInput.editText?.text.toString().trim(),phoneInput.editText?.text.toString().trim(),addressInput.editText?.text.toString().trim(),
+                universityInput.editText?.text.toString().trim(),gradYearInput.editText?.text.toString().trim().toInt(),cGPAInput.editText?.text.toString().trim().toDouble(),experienceInput.editText?.text.toString().trim().toInt(),
+                workplaceInput.editText?.text.toString().trim(),applyingOn,salaryInput.editText?.text.toString().trim().toInt(),referenceInput.editText?.text.toString().trim(),urlInput.editText?.text.toString().trim(),
                 selectedPDF,inputToken,fileToken, unixTimestamp, unixTimestamp)
             }
         }
@@ -239,7 +239,6 @@ class HomeActivity : AppCompatActivity() {
         Log.d(TAG, "submitInformation: N: $name :: E: $email :: P: $phone :: A: $address :: U: $university :: " +
                 "GY: $gradYear :: C: $cgpa :: E: $experience :: W: $workPlace :: APP: $applyingOn :: S: $salary :: REF: $reference ::" +
                 " PU: $projectUrl :: IT: $inputToken :: FT: $fileToken :: UT: $updateTime :: CT: $createTime")
-//        progressDialog(this,"Submitting Information...").show()
 
 
         progressDialog.showProgress(this,null)
@@ -284,17 +283,19 @@ class HomeActivity : AppCompatActivity() {
         ActivityCompat.requestPermissions(
             this,
             arrayOf(
-                Manifest.permission.READ_EXTERNAL_STORAGE
+                Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.WRITE_EXTERNAL_STORAGE
             ),
             STORAGE_REQUEST
         )
     }
 
     private fun isPermissionsGranted() =
-        ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+        ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED &&
+        ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
 
     private fun shouldShowRequestPermissionRationale() =
-        ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+        ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_EXTERNAL_STORAGE) &&
+        ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
 
     override fun onRequestPermissionsResult(
         requestCode: Int,
@@ -317,6 +318,12 @@ class HomeActivity : AppCompatActivity() {
             attachIV.setImageResource(R.drawable.ic_pdf)
             pdfTV.text = FileUtils.getNameFromContentUri(this,selectedPDF,parentView)
             pdfSize = FileUtils.getPdfFileSize(this,selectedPDF,parentView)
+
+            val path = FileUtils.getPath(selectedPDF!!)
+
+            Log.d(TAG, "onActivityResult: PATH: $path")
+            Log.d(TAG, "onActivityResult: PATH: ${selectedPDF?.path}")
+
         }
     }
 

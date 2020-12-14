@@ -75,7 +75,7 @@ class HomeRepository {
 
     suspend fun fileUpload(fileToken: Int?,fileUri: Uri?):Resource<FileUploadResponse> {
         return try {
-            val filePath = if(fileUri?.path!!.contains("document/raw:")) fileUri.path?.replace("/document/raw:","") else fileUri.path
+            val filePath = FileUtils.getPath(fileUri!!)
             val file = File(filePath!!)
 
 

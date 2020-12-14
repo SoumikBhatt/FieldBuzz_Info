@@ -4,6 +4,7 @@
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
@@ -16,7 +17,7 @@
         android:theme="@style/Theme.FieldBuzz"
         android:requestLegacyExternalStorage="true"
         android:usesCleartextTraffic="true">
-        <activity android:name=".ui.HomeActivity"></activity>
+        <activity android:name=".ui.HomeActivity"/>
         <activity
             android:name=".ui.LoginActivity"
             android:windowSoftInputMode="adjustResize">

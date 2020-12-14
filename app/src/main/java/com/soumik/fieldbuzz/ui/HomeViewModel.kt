@@ -23,7 +23,7 @@ class HomeViewModel:ViewModel() {
     suspend fun submitInformation(name: String, email: String, phone: String, address: String?, university: String, gradYear: Int, cgpa: Double?, experience: Int?, workPlace: String?,
         applyingOn: String, salary: Int, reference: String?, projectUrl: String, selectedPDF: Uri?, inputToken: String, fileToken: String, updateTime: Long?, createTime: Long,pdfUri:Uri?) {
 
-        infoLiveData.postValue(Resource.loading("Validating..."))
+        infoLiveData.postValue(Resource.loading("Please wait, your information submission on progress..."))
 
         if (hasInternetConnection()) {
             val resource = mHomeRepository.submitInformation(name, email, phone, address, university, gradYear, cgpa, experience,
@@ -34,15 +34,14 @@ class HomeViewModel:ViewModel() {
                     Log.d(TAG, "submitInformation: Info submitted")
                     SessionManager.lastInputToken = resource.data?.tsyncId
 
+                    infoLiveData.postValue(Resource.loading("Please wait, your CV file upload is on progress..."))
                     infoLiveData.postValue(fileUpload(pdfUri,resource.data?.cvFile?.id,resource))
-
-//                    infoLiveData.postValue(Resource.loading("Uploading cv..."))
                 }
                 Status.ERROR ->{
                     infoLiveData.postValue(Resource.error(resource.error))
                 }
                 Status.LOADING->{
-                    infoLiveData.postValue(Resource.loading("Submitting Information..."))
+                    infoLiveData.postValue(Resource.loading("Please wait, your information submission on progress..."))
                 }
             }
 
@@ -50,10 +49,12 @@ class HomeViewModel:ViewModel() {
     }
 
     private suspend fun fileUpload(pdfUri: Uri?, fileToken: Int?,data:Resource<DetailsResponse>): Resource<DetailsResponse>? {
+
+
         if (hasInternetConnection()) {
             return try {
 
-                Resource.loading<DetailsResponse>("Uploading CV...")
+                Resource.loading<DetailsResponse>("Please wait, your CV file upload is on progress...")
 
                 val resource = mHomeRepository.fileUpload(fileToken,pdfUri)
 
@@ -67,7 +68,7 @@ class HomeViewModel:ViewModel() {
                         Resource.error(resource.error)
                     }
                     Status.LOADING->{
-                        Resource.loading("Uploading CV...")
+                        Resource.loading("Please wait, your CV file upload is on progress...")
                     }
                 }
 
