@@ -38,10 +38,10 @@ class LoginActivity : AppCompatActivity() {
         lightStatusBar(this,true)
         setContentView(R.layout.activity_login)
 
-//        if (SessionManager.isLoggedIn) {
-//            startActivity(Intent(this,HomeActivity::class.java))
-//            finish()
-//        }
+        if (SessionManager.isLoggedIn) {
+            startActivity(Intent(this,HomeActivity::class.java))
+            finish()
+        }
 
         init()
 
@@ -88,7 +88,8 @@ class LoginActivity : AppCompatActivity() {
                         "Username does not exist in the system." -> userNameCon.error = it.error
                     }
 
-                    showSnackBar(rootView,it.error!!,"Ok",Snackbar.LENGTH_INDEFINITE)
+                    val error = it.error ?: FAILURE_MESSAGE
+                    showSnackBar(rootView,error,"Ok",Snackbar.LENGTH_INDEFINITE)
                 }
                 Status.LOADING -> {
                     progressBar.visibility=View.VISIBLE

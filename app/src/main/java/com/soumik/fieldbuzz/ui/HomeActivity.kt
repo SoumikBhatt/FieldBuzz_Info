@@ -131,7 +131,8 @@ class HomeActivity : AppCompatActivity() {
                 }
                 Status.ERROR-> {
                     progressDialog.hideProgressBar()
-                    showSnackBar(parentView,it.error!!,"Ok",Snackbar.LENGTH_INDEFINITE)
+                    val error = it.error ?: FAILURE_MESSAGE
+                    showSnackBar(parentView,error,"Ok",Snackbar.LENGTH_INDEFINITE)
                 }
                 Status.LOADING->{
                     progressDialog.message(it.error)

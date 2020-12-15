@@ -26,6 +26,7 @@ import java.io.InputStream
 
 object FileUtils {
 
+    //m4XdRmc39
     const val TAG = "FILE_UTIL"
     private var contentUri:Uri?=null
     private var context = FieldBuzz.mContext
@@ -148,15 +149,15 @@ object FileUtils {
                         )
                         if (cursor != null && cursor.moveToFirst()) {
                             val fileName = cursor.getString(0)
-//                            val path =
-//                                Environment.getExternalStorageDirectory().absolutePath
-//                                    .toString() + "/Download/" + fileName
-//
-//                            Log.d(TAG, "getPath: From Download Path: $path")
-//
-//                            if (!TextUtils.isEmpty(path)) {
-//                                return path
-//                            }
+                            val path =
+                                Environment.getExternalStorageDirectory().absolutePath
+                                    .toString() + "/Download/" + fileName
+
+                            Log.d(TAG, "getPath: From Download Path: $path")
+
+                            if (!TextUtils.isEmpty(path)) {
+                                return path
+                            }
                         }
                     } finally {
                         cursor?.close()
@@ -449,14 +450,17 @@ object FileUtils {
         val column = "_data"
         val projection = arrayOf(column)
         try {
-            cursor = context.contentResolver.query(
-                uri!!, projection,
-                selection, selectionArgs, null
-            )
-            if (cursor != null && cursor.moveToFirst()) {
-                val index = cursor.getColumnIndexOrThrow(column)
-                return cursor.getString(index)
-            }
+            if (uri!=null) {
+                cursor = context.contentResolver.query(
+                    uri, projection,
+                    selection, selectionArgs, null
+                )
+                if (cursor != null && cursor.moveToFirst()) {
+                    val index = cursor.getColumnIndexOrThrow(column)
+                    return cursor.getString(index)
+                }
+            } else Log.e(TAG, "getDataColumn: URI NULL")
+
         } finally {
             cursor?.close()
         }
