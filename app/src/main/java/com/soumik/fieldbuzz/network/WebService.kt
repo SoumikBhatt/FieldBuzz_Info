@@ -18,7 +18,7 @@ interface WebService {
     ):Response<LoginResponse>
 
     @FormUrlEncoded
-    @POST("v0/recruiting-entities/")
+    @POST("v1/recruiting-entities/")
     suspend fun recruitmentInformation(
             @Header("Authorization") token:String,
             @Field("tsync_id") tSyncID:String,

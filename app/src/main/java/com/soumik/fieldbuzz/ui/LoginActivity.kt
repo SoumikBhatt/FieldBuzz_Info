@@ -38,10 +38,10 @@ class LoginActivity : AppCompatActivity() {
         lightStatusBar(this,true)
         setContentView(R.layout.activity_login)
 
-        if (SessionManager.isLoggedIn) {
-            startActivity(Intent(this,HomeActivity::class.java))
-            finish()
-        }
+//        if (SessionManager.isLoggedIn) {
+//            startActivity(Intent(this,HomeActivity::class.java))
+//            finish()
+//        }
 
         init()
 
